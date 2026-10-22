@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Suppliers · SmartStock{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3"><div><h1 class="h2 mb-1">Suppliers</h1><p class="text-muted mb-0">Manage supplier contact information.</p></div>{% if current_user.is_admin %}<a class="btn btn-primary" href="{{ url_for('suppliers.add_supplier') }}">Add supplier</a>{% endif %}</div>
+<div class="card shadow-sm"><div class="table-responsive"><table class="table mb-0"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Products</th><th></th></tr></thead><tbody>{% for supplier in suppliers %}<tr><td><strong>{{ supplier.name }}</strong></td><td>{{ supplier.phone or '—' }}</td><td>{{ supplier.email or '—' }}</td><td>{{ supplier.address or '—' }}</td><td>{{ supplier.products|length }}</td><td>{% if current_user.is_admin %}<a class="btn btn-sm btn-outline-primary" href="{{ url_for('suppliers.edit_supplier', supplier_id=supplier.id) }}">Edit</a>{% endif %}</td></tr>{% else %}<tr><td colspan="6" class="text-center text-muted py-4">No suppliers added.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

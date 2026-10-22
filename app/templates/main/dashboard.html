@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · SmartStock{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div><h1 class="h2 mb-1">Dashboard</h1><p class="text-muted mb-0">Inventory and sales overview</p></div>
+    <a class="btn btn-primary" href="{{ url_for('sales.new_sale') }}">Create sale</a>
+</div>
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="metric-card"><span>Products</span><strong>{{ products_count }}</strong></div></div>
+    <div class="col-md-3"><div class="metric-card"><span>Units in stock</span><strong>{{ total_units }}</strong></div></div>
+    <div class="col-md-3"><div class="metric-card"><span>Today's sales</span><strong>{{ todays_revenue|money }}</strong></div></div>
+    <div class="col-md-3"><div class="metric-card"><span>Total revenue</span><strong>{{ total_revenue|money }}</strong></div></div>
+</div>
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><strong>Recent sales</strong></div>
+            <div class="table-responsive"><table class="table mb-0"><thead><tr><th>Receipt</th><th>Date</th><th>Cashier</th><th>Total</th></tr></thead><tbody>
+                {% for sale in recent_sales %}<tr><td><a href="{{ url_for('sales.receipt', sale_id=sale.id) }}">{{ sale.receipt_number }}</a></td><td>{{ sale.created_at.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ sale.cashier.name }}</td><td>{{ sale.total|money }}</td></tr>
+                {% else %}<tr><td colspan="4" class="text-center text-muted py-4">No sales recorded.</td></tr>{% endfor %}
+            </tbody></table></div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><strong>Low-stock alerts</strong></div>
+            <div class="list-group list-group-flush">
+                {% for product in low_stock_products %}<a class="list-group-item list-group-item-action d-flex justify-content-between" href="{{ url_for('products.adjust_stock', product_id=product.id) }}"><span>{{ product.name }}</span><span class="badge text-bg-warning">{{ product.quantity }} left</span></a>
+                {% else %}<div class="list-group-item text-muted">All products are above reorder levels.</div>{% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

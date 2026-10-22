@@ -1,0 +1,31 @@
+#!/bin/sh
+# Git Pre-commit Hook for SmartStock
+# Runs the full test suite before committing code.
+# Ensures that only passing, high-quality code reaches the repository.
+
+echo "================================================="
+echo "  [SmartStock Git Hook] Running pre-commit tests..."
+echo "================================================="
+
+if [ -f ".venv/Scripts/python.exe" ]; then
+    .venv/Scripts/python.exe -m pytest -v
+elif [ -f ".venv/bin/python" ]; then
+    .venv/bin/python -m pytest -v
+else
+    python -m pytest -v
+fi
+
+STATUS=$?
+
+if [ $STATUS -ne 0 ]; then
+    echo "================================================="
+    echo "  [ERROR] Tests failed! Commit aborted."
+    echo "  Please fix test failures before committing."
+    echo "================================================="
+    exit 1
+fi
+
+echo "================================================="
+echo "  [SUCCESS] All tests passed! Proceeding with commit."
+echo "================================================="
+exit 0

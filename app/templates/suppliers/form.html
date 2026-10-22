@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if supplier else 'Add' }} Supplier · SmartStock{% endblock %}
+{% block content %}
+<h1 class="h2 mb-3">{{ 'Edit supplier' if supplier else 'Add supplier' }}</h1><form method="post" class="card shadow-sm"><div class="card-body"><div class="row g-3"><div class="col-md-6"><label class="form-label">Name</label><input class="form-control" name="name" value="{{ supplier.name if supplier else '' }}" required></div><div class="col-md-6"><label class="form-label">Phone</label><input class="form-control" name="phone" value="{{ supplier.phone if supplier else '' }}"></div><div class="col-md-6"><label class="form-label">Email</label><input class="form-control" type="email" name="email" value="{{ supplier.email if supplier else '' }}"></div><div class="col-md-6"><label class="form-label">Address</label><input class="form-control" name="address" value="{{ supplier.address if supplier else '' }}"></div></div></div><div class="card-footer bg-white"><button class="btn btn-primary">Save supplier</button> <a class="btn btn-outline-secondary" href="{{ url_for('suppliers.list_suppliers') }}">Cancel</a></div></form>
+{% endblock %}
