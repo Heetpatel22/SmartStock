@@ -159,3 +159,4 @@ classDiagram
 - **Pair Programming**: Checkout workflow orchestration paired with pluggable payment strategies.
 - **Review Finding**: `SalesService` had tight coupling to `db.session.commit()` and hardcoded payment conditions.
 - **Action Taken**: Refactored to Repository pattern (ISP & DIP), implemented Strategy pattern for payments (OCP & LSP), and integrated automated Git pre-commit hook with GitHub Actions CI.
+

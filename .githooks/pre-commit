@@ -29,3 +29,4 @@ echo "================================================="
 echo "  [SUCCESS] All tests passed! Proceeding with commit."
 echo "================================================="
 exit 0
+

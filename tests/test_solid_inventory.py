@@ -123,3 +123,4 @@ class TestInventoryServiceTDD:
         # Act & Assert
         with pytest.raises(InventoryError, match="Adjustment quantity cannot be zero"):
             service.adjust(product, quantity_change=0, reason="No-op")
+

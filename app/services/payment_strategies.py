@@ -109,3 +109,4 @@ class PaymentProcessorRegistry:
         if not strategy:
             raise PaymentError(f"Unsupported payment method: '{payment_method}'.")
         return strategy.process(amount, **kwargs)
+

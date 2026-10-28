@@ -26,3 +26,4 @@ class StockMovementRepository(IStockMovementRecorder):
         self._session.add(movement)
         self._session.flush()
         return movement
+

@@ -43,3 +43,4 @@ class ProductRepository(IProductReader, IProductWriter):
         self._session.add(product)
         self._session.flush()
         return product
+

@@ -18,3 +18,4 @@ class ReceiptGenerator(IReceiptGenerator):
         now = datetime.now(timezone.utc)
         unique_suffix = uuid.uuid4().hex[:4].upper()
         return f"{self.prefix}-{now:%Y%m%d%H%M%S}-{unique_suffix}"
+

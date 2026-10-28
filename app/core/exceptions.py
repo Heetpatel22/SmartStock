@@ -27,3 +27,4 @@ class PaymentError(SmartStockError, ValueError):
 class ValidationError(SmartStockError, ValueError):
     """Raised when input validation fails."""
     pass
+

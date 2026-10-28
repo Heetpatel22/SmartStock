@@ -78,3 +78,4 @@ class TestPaymentStrategies:
 
         # After registration - seamlessly handled
         assert registry.process("gift_card", Decimal("200.00")) is True
+

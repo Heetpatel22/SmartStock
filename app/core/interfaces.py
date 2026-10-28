@@ -100,3 +100,4 @@ class IPaymentStrategy(Protocol):
     def process(self, amount: Decimal, **kwargs) -> bool:
         """Validate and process payment for the given amount."""
         ...
+
