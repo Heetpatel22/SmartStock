@@ -1,0 +1,10 @@
+# Ensure shell scripts always keep LF endings on all platforms (vital for Linux deployment on Render)
+*.sh text eol=lf
+*.py text
+*.html text
+*.css text
+*.js text
+*.md text
+*.yaml text
+*.yml text
+Procfile text

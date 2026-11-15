@@ -16,12 +16,14 @@ login_manager.login_message_category = "warning"
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+
+    database_url = os.getenv("DATABASE_URL", "sqlite:///smartstock.db")
+    if database_url and database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY", "development-secret-change-me"),
-        SQLALCHEMY_DATABASE_URI=os.getenv(
-            "DATABASE_URL",
-            "sqlite:///smartstock.db",
-        ),
+        SQLALCHEMY_DATABASE_URI=database_url,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
