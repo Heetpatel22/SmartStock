@@ -1,32 +1,182 @@
 {% extends "base.html" %}
 {% block title %}Dashboard · SmartStock{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div><h1 class="h2 mb-1">Dashboard</h1><p class="text-muted mb-0">Inventory and sales overview</p></div>
-    <a class="btn btn-primary" href="{{ url_for('sales.new_sale') }}">Create sale</a>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+        <h1 class="h2 fw-bold mb-1 text-dark">Executive Dashboard</h1>
+        <p class="text-muted mb-0">Real-time inventory levels, sales velocity, and revenue metrics.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <a class="btn btn-outline-primary d-inline-flex align-items-center gap-1 shadow-sm" href="{{ url_for('products.list_products') }}">
+            <i class="bi bi-box-seam"></i>
+            <span>Manage Catalog</span>
+        </a>
+        <a class="btn btn-primary d-inline-flex align-items-center gap-1 shadow-sm" href="{{ url_for('sales.new_sale') }}">
+            <i class="bi bi-cart-plus-fill"></i>
+            <span>Create Sale</span>
+        </a>
+    </div>
 </div>
+
+<!-- Key Performance Indicators (KPI Cards) -->
 <div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="metric-card"><span>Products</span><strong>{{ products_count }}</strong></div></div>
-    <div class="col-md-3"><div class="metric-card"><span>Units in stock</span><strong>{{ total_units }}</strong></div></div>
-    <div class="col-md-3"><div class="metric-card"><span>Today's sales</span><strong>{{ todays_revenue|money }}</strong></div></div>
-    <div class="col-md-3"><div class="metric-card"><span>Total revenue</span><strong>{{ total_revenue|money }}</strong></div></div>
-</div>
-<div class="row g-4">
-    <div class="col-lg-7">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white"><strong>Recent sales</strong></div>
-            <div class="table-responsive"><table class="table mb-0"><thead><tr><th>Receipt</th><th>Date</th><th>Cashier</th><th>Total</th></tr></thead><tbody>
-                {% for sale in recent_sales %}<tr><td><a href="{{ url_for('sales.receipt', sale_id=sale.id) }}">{{ sale.receipt_number }}</a></td><td>{{ sale.created_at.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ sale.cashier.name }}</td><td>{{ sale.total|money }}</td></tr>
-                {% else %}<tr><td colspan="4" class="text-center text-muted py-4">No sales recorded.</td></tr>{% endfor %}
-            </tbody></table></div>
+    <!-- Total Products -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="metric-card">
+            <div class="metric-header">
+                <span>Products Cataloged</span>
+                <div class="metric-icon-box icon-blue">
+                    <i class="bi bi-boxes"></i>
+                </div>
+            </div>
+            <strong>{{ products_count }}</strong>
+            <div class="text-muted small mt-2 d-flex align-items-center gap-1">
+                <i class="bi bi-check2 text-primary"></i> Active inventory items
+            </div>
         </div>
     </div>
+
+    <!-- Units in Stock -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="metric-card">
+            <div class="metric-header">
+                <span>Total Units in Stock</span>
+                <div class="metric-icon-box icon-emerald">
+                    <i class="bi bi-stack"></i>
+                </div>
+            </div>
+            <strong>{{ total_units }}</strong>
+            <div class="text-muted small mt-2 d-flex align-items-center gap-1">
+                <i class="bi bi-warehouse text-success"></i> Across warehouse shelves
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Sales -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="metric-card">
+            <div class="metric-header">
+                <span>Today's Revenue</span>
+                <div class="metric-icon-box icon-amber">
+                    <i class="bi bi-calendar-check-fill"></i>
+                </div>
+            </div>
+            <strong>{{ todays_revenue|money }}</strong>
+            <div class="text-muted small mt-2 d-flex align-items-center gap-1">
+                <i class="bi bi-graph-up-arrow text-warning"></i> Today's transaction volume
+            </div>
+        </div>
+    </div>
+
+    <!-- Lifetime Revenue -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="metric-card">
+            <div class="metric-header">
+                <span>Lifetime Revenue</span>
+                <div class="metric-icon-box icon-indigo">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+            <strong>{{ total_revenue|money }}</strong>
+            <div class="text-muted small mt-2 d-flex align-items-center gap-1">
+                <i class="bi bi-shield-check text-indigo"></i> Total cleared payments
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Sales Table -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-receipt text-primary"></i>
+                    <span>Recent Transactions</span>
+                </span>
+                <a href="{{ url_for('sales.list_sales') }}" class="btn btn-sm btn-link text-decoration-none">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Receipt #</th>
+                            <th>Date / Time</th>
+                            <th>Cashier</th>
+                            <th class="text-end">Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in recent_sales %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('sales.receipt', sale_id=sale.id) }}" class="fw-semibold text-primary text-decoration-none d-inline-flex align-items-center gap-1">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    {{ sale.receipt_number }}
+                                </a>
+                            </td>
+                            <td class="text-muted small">
+                                {{ sale.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-person me-1"></i>{{ sale.cashier.name }}
+                                </span>
+                            </td>
+                            <td class="text-end fw-bold text-dark">
+                                {{ sale.total|money }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-2 text-subtle"></i>
+                                No transactions recorded yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low-Stock Alerts -->
     <div class="col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white"><strong>Low-stock alerts</strong></div>
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                    <span>Inventory Reorder Alerts</span>
+                </span>
+                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis">
+                    {{ low_stock_products|length }} Item{% if low_stock_products|length != 1 %}s{% endif %}
+                </span>
+            </div>
             <div class="list-group list-group-flush">
-                {% for product in low_stock_products %}<a class="list-group-item list-group-item-action d-flex justify-content-between" href="{{ url_for('products.adjust_stock', product_id=product.id) }}"><span>{{ product.name }}</span><span class="badge text-bg-warning">{{ product.quantity }} left</span></a>
-                {% else %}<div class="list-group-item text-muted">All products are above reorder levels.</div>{% endfor %}
+                {% for product in low_stock_products %}
+                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3" href="{{ url_for('products.adjust_stock', product_id=product.id) }}">
+                    <div>
+                        <div class="fw-semibold text-dark">{{ product.name }}</div>
+                        <div class="text-muted small">
+                            SKU: <span class="font-monospace text-uppercase">{{ product.sku }}</span> · Reorder Level: {{ product.reorder_level }}
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-low-stock">
+                            {{ product.quantity }} in stock
+                        </span>
+                        <span class="d-block text-primary small mt-1">
+                            Adjust <i class="bi bi-arrow-right-short"></i>
+                        </span>
+                    </div>
+                </a>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-shield-check text-success fs-1 d-block mb-2"></i>
+                    All product inventories are healthy and above reorder levels.
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>

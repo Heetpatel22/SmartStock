@@ -1,5 +1,63 @@
 {% extends "base.html" %}
 {% block title %}{{ 'Edit' if supplier else 'Add' }} Supplier · SmartStock{% endblock %}
 {% block content %}
-<h1 class="h2 mb-3">{{ 'Edit supplier' if supplier else 'Add supplier' }}</h1><form method="post" class="card shadow-sm"><div class="card-body"><div class="row g-3"><div class="col-md-6"><label class="form-label">Name</label><input class="form-control" name="name" value="{{ supplier.name if supplier else '' }}" required></div><div class="col-md-6"><label class="form-label">Phone</label><input class="form-control" name="phone" value="{{ supplier.phone if supplier else '' }}"></div><div class="col-md-6"><label class="form-label">Email</label><input class="form-control" type="email" name="email" value="{{ supplier.email if supplier else '' }}"></div><div class="col-md-6"><label class="form-label">Address</label><input class="form-control" name="address" value="{{ supplier.address if supplier else '' }}"></div></div></div><div class="card-footer bg-white"><button class="btn btn-primary">Save supplier</button> <a class="btn btn-outline-secondary" href="{{ url_for('suppliers.list_suppliers') }}">Cancel</a></div></form>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+        <h1 class="h2 fw-bold mb-1 text-dark">{{ 'Edit Supplier Details' if supplier else 'Register New Supplier' }}</h1>
+        <p class="text-muted mb-0">Record vendor contact details, phone, email, and facility location.</p>
+    </div>
+    <a href="{{ url_for('suppliers.list_suppliers') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1 shadow-sm">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Directory</span>
+    </a>
+</div>
+
+<form method="post" class="card shadow-sm">
+    <div class="card-header d-flex align-items-center gap-2">
+        <i class="bi bi-truck text-primary"></i>
+        <span>Vendor Profile</span>
+    </div>
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Vendor / Company Name</label>
+                <input class="form-control" name="name" value="{{ supplier.name if supplier else '' }}" placeholder="e.g. Apex Hardware Supplies" required autofocus>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Phone Contact</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted">
+                        <i class="bi bi-telephone"></i>
+                    </span>
+                    <input class="form-control" name="phone" value="{{ supplier.phone if supplier else '' }}" placeholder="+91 98765 43210">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted">
+                        <i class="bi bi-envelope"></i>
+                    </span>
+                    <input class="form-control" type="email" name="email" value="{{ supplier.email if supplier else '' }}" placeholder="sales@vendor.com">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Physical Warehouse / Office Address</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted">
+                        <i class="bi bi-geo-alt"></i>
+                    </span>
+                    <input class="form-control" name="address" value="{{ supplier.address if supplier else '' }}" placeholder="123 Industrial Area, Phase II">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer bg-white p-3 d-flex justify-content-between align-items-center">
+        <a class="btn btn-outline-secondary" href="{{ url_for('suppliers.list_suppliers') }}">Cancel</a>
+        <button class="btn btn-primary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-check2"></i>
+            <span>{{ 'Update Supplier' if supplier else 'Save Supplier' }}</span>
+        </button>
+    </div>
+</form>
 {% endblock %}

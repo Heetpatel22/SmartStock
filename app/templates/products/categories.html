@@ -1,32 +1,76 @@
 {% extends "base.html" %}
-{% block title %}Categories · SmartStock{% endblock %}
+{% block title %}Product Categories · SmartStock{% endblock %}
 {% block content %}
-<div class="row g-4">
-  <div class="col-lg-5">
-    <h1 class="h2 mb-1">Categories</h1>
-    <p class="text-muted">Organize products into reusable groups.</p>
-    <form method="post" class="card shadow-sm">
-      <div class="card-body">
-        <label class="form-label">Category name</label>
-        <input class="form-control" name="name" required>
-      </div>
-      <div class="card-footer bg-white"><button class="btn btn-primary">Add category</button></div>
-    </form>
-  </div>
-  <div class="col-lg-7">
-    <div class="card shadow-sm">
-      <div class="card-header bg-white"><strong>Existing categories</strong></div>
-      <div class="list-group list-group-flush">
-        {% for category in categories %}
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-          <span>{{ category.name }} <span class="text-muted small">({{ category.products|length }} products)</span></span>
-          <form method="post" action="{{ url_for('products.delete_category', category_id=category.id) }}" onsubmit="return confirm('Delete this category?')">
-            <button class="btn btn-sm btn-outline-danger" {% if category.products %}disabled title="Remove products from this category first"{% endif %}>Delete</button>
-          </form>
-        </div>
-        {% else %}<div class="list-group-item text-muted">No categories created.</div>{% endfor %}
-      </div>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+        <h1 class="h2 fw-bold mb-1 text-dark">Product Categories</h1>
+        <p class="text-muted mb-0">Organize and group inventory items for faster checkout and reporting.</p>
     </div>
-  </div>
+    <a href="{{ url_for('products.list_products') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1 shadow-sm">
+        <i class="bi bi-boxes"></i>
+        <span>Catalog</span>
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Add Category Form -->
+    <div class="col-lg-5">
+        <form method="post" class="card shadow-sm h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-tag-fill text-primary"></i>
+                <span>Create New Category</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <label class="form-label">Category Name</label>
+                    <input class="form-control" name="name" placeholder="e.g. Peripherals, Electronics, Office Supplies" required autofocus>
+                    <div class="form-text small text-muted">A clear classification name used across product listings.</div>
+                </div>
+                <button class="btn btn-primary d-inline-flex align-items-center gap-2 w-100 justify-content-center py-2 shadow-sm">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    <span>Save Category</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Existing Categories List -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-tags-fill text-primary"></i>
+                    <span>Active Categories</span>
+                </span>
+                <span class="badge bg-primary-subtle text-primary-emphasis">
+                    {{ categories|length }} Total
+                </span>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for category in categories %}
+                <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-folder-fill text-primary opacity-75"></i>
+                        <div>
+                            <span class="fw-semibold text-dark">{{ category.name }}</span>
+                            <span class="text-muted small ms-2">({{ category.products|length }} product{% if category.products|length != 1 %}s{% endif %})</span>
+                        </div>
+                    </div>
+                    <form method="post" action="{{ url_for('products.delete_category', category_id=category.id) }}" onsubmit="return confirm('Delete this category?')">
+                        <button class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" {% if category.products %}disabled title="Remove assigned products first"{% endif %}>
+                            <i class="bi bi-trash"></i>
+                            <span>Delete</span>
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-tags fs-1 d-block mb-2 text-subtle"></i>
+                    No categories created yet.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

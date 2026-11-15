@@ -3,46 +3,137 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}SmartStock{% endblock %}</title>
+    <title>{% block title %}SmartStock — Inventory & Sales Management{% endblock %}</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom Theme -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+
 {% if current_user.is_authenticated %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark no-print">
+<nav class="navbar navbar-expand-lg navbar-custom no-print sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="{{ url_for('main.dashboard') }}">SmartStock</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
+        <!-- Brand Logo -->
+        <a class="navbar-brand text-white fw-bold me-4" href="{{ url_for('main.dashboard') }}">
+            <span class="brand-icon-wrapper">
+                <i class="bi bi-box-seam-fill"></i>
+            </span>
+            <span>Smart<span style="color: #818cf8;">Stock</span></span>
+        </a>
+
+        <!-- Mobile Toggler -->
+        <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="bi bi-list fs-3"></i>
         </button>
+
+        <!-- Navigation Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('products.list_products') }}">Products</a></li>
-                {% if current_user.is_admin %}<li class="nav-item"><a class="nav-link" href="{{ url_for('products.categories') }}">Categories</a></li>{% endif %}
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('suppliers.list_suppliers') }}">Suppliers</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('sales.new_sale') }}">New Sale</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('sales.list_sales') }}">Sales</a></li>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
+                        <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'products' in request.endpoint and request.endpoint != 'products.categories' %}active{% endif %}" href="{{ url_for('products.list_products') }}">
+                        <i class="bi bi-boxes"></i> Products
+                    </a>
+                </li>
+                {% if current_user.is_admin %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'products.categories' %}active{% endif %}" href="{{ url_for('products.categories') }}">
+                        <i class="bi bi-tags-fill"></i> Categories
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link {% if 'suppliers' in request.endpoint %}active{% endif %}" href="{{ url_for('suppliers.list_suppliers') }}">
+                        <i class="bi bi-truck"></i> Suppliers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'sales.list_sales' %}active{% endif %}" href="{{ url_for('sales.list_sales') }}">
+                        <i class="bi bi-receipt"></i> Sales History
+                    </a>
+                </li>
             </ul>
-            <span class="navbar-text me-3">{{ current_user.name }} · {{ current_user.role }}</span>
-            <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.logout') }}">Logout</a>
+
+            <!-- Right Actions: New Sale + User Profile + Logout -->
+            <div class="d-flex align-items-center gap-3">
+                <a class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm" href="{{ url_for('sales.new_sale') }}">
+                    <i class="bi bi-cart-plus-fill"></i>
+                    <span>New Sale</span>
+                </a>
+
+                <!-- User Profile Pill -->
+                <div class="user-profile-badge d-none d-md-flex align-items-center">
+                    <span class="avatar-circle">
+                        {{ current_user.name[0]|upper if current_user.name else 'U' }}
+                    </span>
+                    <div class="d-flex flex-column text-start" style="line-height: 1.1;">
+                        <span class="text-white fw-semibold small">{{ current_user.name }}</span>
+                        <span class="text-subtle" style="font-size: 0.72rem; color: #94a3b8;">
+                            {% if current_user.is_admin %}
+                                <span class="badge bg-primary-subtle text-primary-emphasis p-0" style="font-size: 0.68rem;">ADMIN</span>
+                            {% else %}
+                                <span class="badge bg-success-subtle text-success-emphasis p-0" style="font-size: 0.68rem;">CASHIER</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Logout -->
+                <a class="btn btn-outline-light btn-sm d-flex align-items-center gap-1" href="{{ url_for('auth.logout') }}" title="Logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="d-none d-lg-inline">Logout</span>
+                </a>
+            </div>
         </div>
     </div>
 </nav>
 {% endif %}
 
+<!-- Main App Container -->
 <main class="container py-4">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show no-print" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            {% set alert_type = 'success' if category in ['success', 'primary'] else ('danger' if category in ['error', 'danger'] else ('warning' if category in ['warning'] else 'info')) %}
+            {% set icon_type = 'check-circle-fill' if alert_type == 'success' else ('exclamation-triangle-fill' if alert_type in ['danger', 'warning'] else 'info-circle-fill') %}
+            <div class="alert alert-{{ alert_type }} alert-dismissible fade show no-print d-flex align-items-center shadow-sm" role="alert" style="border-radius: 10px;">
+                <i class="bi bi-{{ icon_type }} me-2 fs-5"></i>
+                <div>{{ message }}</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {% endfor %}
     {% endwith %}
+
     {% block content %}{% endblock %}
 </main>
 
+<!-- Modern Footer -->
+<footer class="footer-custom no-print text-center text-md-start">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge rounded-pill bg-success-subtle text-success d-inline-flex align-items-center gap-1">
+                <span style="width:6px; height:6px; background:#10b981; border-radius:50%; display:inline-block;"></span>
+                Operational
+            </span>
+            <span class="text-muted">SmartStock System</span>
+        </div>
+        <div class="text-muted small">
+            Built with Agile Scrum Practices & SOLID Architecture
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap 5 Bundle JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% block scripts %}{% endblock %}
 </body>

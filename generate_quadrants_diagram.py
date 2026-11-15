@@ -164,3 +164,4 @@ plt.savefig(output_path, dpi=300, facecolor=fig.get_facecolor(), edgecolor="none
 plt.close()
 
 print(f"Diagram successfully generated at: {output_path}")
+

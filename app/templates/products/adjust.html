@@ -1,6 +1,112 @@
 {% extends "base.html" %}
-{% block title %}Adjust Stock · SmartStock{% endblock %}
+{% block title %}Adjust Stock: {{ product.name }} · SmartStock{% endblock %}
 {% block content %}
-<div class="row g-4"><div class="col-lg-5"><h1 class="h2">Adjust stock</h1><p class="text-muted">{{ product.name }} currently has <strong>{{ product.quantity }}</strong> units.</p><form method="post" class="card shadow-sm"><div class="card-body"><div class="mb-3"><label class="form-label">Quantity change</label><input class="form-control" type="number" name="quantity_change" required><div class="form-text">Use a positive number to add stock or a negative number to remove it.</div></div><div class="mb-3"><label class="form-label">Reason</label><input class="form-control" name="reason" placeholder="Delivery, damage, correction..." required></div><button class="btn btn-primary">Apply adjustment</button></div></form></div>
-<div class="col-lg-7"><h2 class="h4">Recent movements</h2><div class="card shadow-sm"><div class="table-responsive"><table class="table mb-0"><thead><tr><th>Date</th><th>Type</th><th>Quantity</th><th>Reason</th></tr></thead><tbody>{% for movement in movements %}<tr><td>{{ movement.created_at.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ movement.movement_type }}</td><td>{{ movement.quantity }}</td><td>{{ movement.reason }}</td></tr>{% else %}<tr><td colspan="4" class="text-center text-muted py-4">No movements recorded.</td></tr>{% endfor %}</tbody></table></div></div></div></div>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+        <h1 class="h2 fw-bold mb-1 text-dark">Stock Reconciliation & Audit</h1>
+        <p class="text-muted mb-0">Manually adjust inventory quantities with mandatory audit reason logging.</p>
+    </div>
+    <a href="{{ url_for('products.list_products') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1 shadow-sm">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Products</span>
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Adjustment Form -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-sliders text-primary"></i>
+                <span>Adjust Stock Quantity</span>
+            </div>
+            <div class="card-body p-4">
+                <!-- Product Summary Banner -->
+                <div class="p-3 bg-light rounded-3 mb-4 border">
+                    <div class="fw-bold text-dark fs-5">{{ product.name }}</div>
+                    <div class="small text-muted font-monospace mb-2">SKU: {{ product.sku }}</div>
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                        <span class="text-muted small">Current Balance:</span>
+                        <span class="fs-5 fw-bold {% if product.is_low_stock %}text-warning{% else %}text-success{% endif %}">
+                            {{ product.quantity }} Units
+                        </span>
+                    </div>
+                </div>
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Quantity Change (+ or -)</label>
+                        <input class="form-control form-control-lg fw-bold" type="number" name="quantity_change" placeholder="e.g. +10 or -5" required>
+                        <div class="form-text small text-muted">
+                            Enter a positive number (e.g. <code>+15</code>) to restock, or negative (e.g. <code>-3</code>) for damages/returns.
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Reconciliation Reason / Note</label>
+                        <input class="form-control" name="reason" placeholder="e.g. Supplier delivery, damaged goods, inventory count" required>
+                    </div>
+                    <button class="btn btn-primary w-100 py-2 d-inline-flex justify-content-center align-items-center gap-2 shadow-sm">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Apply & Record Stock Adjustment</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Log -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-clock-history text-primary"></i>
+                <span>Stock Movement History (Last 10 Events)</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Type</th>
+                            <th class="text-center">Quantity</th>
+                            <th>Reason / Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movement in movements %}
+                        <tr>
+                            <td class="text-muted small">
+                                {{ movement.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                            </td>
+                            <td>
+                                {% if movement.movement_type == 'IN' %}
+                                    <span class="badge badge-in-stock d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-arrow-down-left"></i> IN
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-out-of-stock d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-arrow-up-right"></i> OUT
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center fw-bold">
+                                {{ movement.quantity }}
+                            </td>
+                            <td class="text-muted small">
+                                {{ movement.reason }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="bi bi-journal-x fs-1 d-block mb-2 text-subtle"></i>
+                                No stock movements recorded for this item.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
