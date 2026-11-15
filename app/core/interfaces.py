@@ -2,14 +2,14 @@
 Core interfaces and protocols for SmartStock.
 
 Demonstrates:
-- Interface Segregation Principle (ISP): Clients only depend on small, focused interfaces
-  they actually need (e.g., IProductReader vs IProductWriter).
-- Dependency Inversion Principle (DIP): High-level business logic modules depend on these
-  abstractions rather than concrete database/ORM implementations.
+- Interface Segregation Principle (ISP): Focused, segregated interfaces
+  (e.g., IProductReader, IProductWriter, IProductDeleter, ICategoryRepository, ISupplierRepository).
+- Dependency Inversion Principle (DIP): High-level business logic modules and controllers depend
+  on these abstractions rather than concrete database/ORM implementations.
 """
 
 from decimal import Decimal
-from typing import Any, List, Optional, Protocol, runtime_checkable
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -28,6 +28,10 @@ class IProductReader(Protocol):
         """Retrieve all products with quantity > 0."""
         ...
 
+    def get_all(self, search: Optional[str] = None) -> List[Any]:
+        """Retrieve all products, optionally filtered by search substring."""
+        ...
+
 
 @runtime_checkable
 class IProductWriter(Protocol):
@@ -43,6 +47,49 @@ class IProductWriter(Protocol):
 
 
 @runtime_checkable
+class IProductDeleter(Protocol):
+    """Interface for removing product records (ISP)."""
+
+    def delete(self, product: Any) -> None:
+        """Delete product from store."""
+        ...
+
+
+@runtime_checkable
+class ICategoryRepository(Protocol):
+    """Interface for category management (ISP)."""
+
+    def get_all(self) -> List[Any]:
+        ...
+
+    def get_by_id(self, category_id: int) -> Optional[Any]:
+        ...
+
+    def get_by_name(self, name: str) -> Optional[Any]:
+        ...
+
+    def save(self, category: Any) -> Any:
+        ...
+
+    def delete(self, category: Any) -> None:
+        ...
+
+
+@runtime_checkable
+class ISupplierRepository(Protocol):
+    """Interface for supplier data management (ISP)."""
+
+    def get_all(self) -> List[Any]:
+        ...
+
+    def get_by_id(self, supplier_id: int) -> Optional[Any]:
+        ...
+
+    def save(self, supplier: Any) -> Any:
+        ...
+
+
+@runtime_checkable
 class IStockMovementRecorder(Protocol):
     """Interface for logging stock movements (Single Responsibility)."""
 
@@ -50,6 +97,10 @@ class IStockMovementRecorder(Protocol):
         self, product_id: int, movement_type: str, quantity: int, reason: str
     ) -> Any:
         """Log a stock movement record (IN / OUT)."""
+        ...
+
+    def get_by_product_id(self, product_id: int, limit: int = 10) -> List[Any]:
+        """Retrieve movement history for a specific product."""
         ...
 
 
@@ -100,4 +151,3 @@ class IPaymentStrategy(Protocol):
     def process(self, amount: Decimal, **kwargs) -> bool:
         """Validate and process payment for the given amount."""
         ...
-

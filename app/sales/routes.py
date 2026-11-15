@@ -1,24 +1,32 @@
+"""
+Sales routes (Presentation Layer).
+Adheres to SRP and DIP by delegating to SalesService, SaleRepository, and ProductRepository.
+"""
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from app import db
-from app.models import Product, Sale
-from app.services.sales_service import SaleError, SalesService
+from app.core.exceptions import SaleError
+from app.repositories.product_repository import ProductRepository
+from app.repositories.sale_repository import SaleRepository
+from app.services.sales_service import SalesService
 
 sales_bp = Blueprint("sales", __name__)
+sale_repo = SaleRepository()
+product_repo = ProductRepository()
 
 
 @sales_bp.route("/")
 @login_required
 def list_sales():
-    sales = Sale.query.order_by(Sale.created_at.desc()).all()
+    sales = sale_repo.get_all_sales()
     return render_template("sales/list.html", sales=sales)
 
 
 @sales_bp.route("/new", methods=["GET", "POST"])
 @login_required
 def new_sale():
-    products = Product.query.filter(Product.quantity > 0).order_by(Product.name).all()
+    products = product_repo.get_all_in_stock()
 
     if request.method == "POST":
         requested_items = []
@@ -41,7 +49,6 @@ def new_sale():
             flash("Sale completed successfully.", "success")
             return redirect(url_for("sales.receipt", sale_id=sale.id))
         except SaleError as exc:
-            db.session.rollback()
             flash(str(exc), "danger")
 
     return render_template("sales/new.html", products=products)
@@ -50,5 +57,8 @@ def new_sale():
 @sales_bp.route("/<int:sale_id>/receipt")
 @login_required
 def receipt(sale_id):
-    sale = db.get_or_404(Sale, sale_id)
+    sale = sale_repo.get_sale_by_id(sale_id)
+    if not sale:
+        flash("Sale receipt not found.", "danger")
+        return redirect(url_for("sales.list_sales"))
     return render_template("sales/receipt.html", sale=sale)

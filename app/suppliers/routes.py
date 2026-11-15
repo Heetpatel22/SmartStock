@@ -1,27 +1,24 @@
+"""
+Supplier routes (Presentation Layer).
+Adheres to SRP by delegating supplier domain logic to SupplierService.
+"""
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
-from app import db
+from app.core.exceptions import ValidationError
 from app.decorators import admin_required
-from app.models import Supplier
+from app.services.supplier_service import SupplierService
 
 suppliers_bp = Blueprint("suppliers", __name__)
+supplier_service = SupplierService()
 
 
 @suppliers_bp.route("/")
 @login_required
 def list_suppliers():
-    suppliers = Supplier.query.order_by(Supplier.name).all()
+    suppliers = supplier_service.get_all()
     return render_template("suppliers/list.html", suppliers=suppliers)
-
-
-def _apply_form(supplier):
-    supplier.name = request.form.get("name", "").strip()
-    supplier.phone = request.form.get("phone", "").strip()
-    supplier.email = request.form.get("email", "").strip()
-    supplier.address = request.form.get("address", "").strip()
-    if not supplier.name:
-        raise ValueError("Supplier name is required.")
 
 
 @suppliers_bp.route("/add", methods=["GET", "POST"])
@@ -29,15 +26,18 @@ def _apply_form(supplier):
 @admin_required
 def add_supplier():
     if request.method == "POST":
-        supplier = Supplier()
         try:
-            _apply_form(supplier)
-            db.session.add(supplier)
-            db.session.commit()
+            supplier_service.create_supplier(
+                name=request.form.get("name", ""),
+                phone=request.form.get("phone", ""),
+                email=request.form.get("email", ""),
+                address=request.form.get("address", ""),
+            )
             flash("Supplier added successfully.", "success")
             return redirect(url_for("suppliers.list_suppliers"))
-        except ValueError as exc:
+        except ValidationError as exc:
             flash(str(exc), "danger")
+
     return render_template("suppliers/form.html", supplier=None)
 
 
@@ -45,13 +45,23 @@ def add_supplier():
 @login_required
 @admin_required
 def edit_supplier(supplier_id):
-    supplier = db.get_or_404(Supplier, supplier_id)
+    supplier = supplier_service.get_by_id(supplier_id)
+    if not supplier:
+        flash("Supplier not found.", "danger")
+        return redirect(url_for("suppliers.list_suppliers"))
+
     if request.method == "POST":
         try:
-            _apply_form(supplier)
-            db.session.commit()
+            supplier_service.update_supplier(
+                supplier_id=supplier_id,
+                name=request.form.get("name", ""),
+                phone=request.form.get("phone", ""),
+                email=request.form.get("email", ""),
+                address=request.form.get("address", ""),
+            )
             flash("Supplier updated successfully.", "success")
             return redirect(url_for("suppliers.list_suppliers"))
-        except ValueError as exc:
+        except ValidationError as exc:
             flash(str(exc), "danger")
+
     return render_template("suppliers/form.html", supplier=supplier)

@@ -3,6 +3,7 @@ Stock movement repository implementing IStockMovementRecorder.
 Encapsulates logging of all stock audit movements (IN/OUT).
 """
 
+from typing import List
 from app import db
 from app.core.interfaces import IStockMovementRecorder
 from app.models import StockMovement
@@ -27,3 +28,11 @@ class StockMovementRepository(IStockMovementRecorder):
         self._session.flush()
         return movement
 
+    def get_by_product_id(self, product_id: int, limit: int = 10) -> List[StockMovement]:
+        return (
+            self._session.query(StockMovement)
+            .filter_by(product_id=product_id)
+            .order_by(StockMovement.created_at.desc())
+            .limit(limit)
+            .all()
+        )
