@@ -103,3 +103,4 @@
 3. **Live GitHub Actions Run (Online)**:
    - Run URL: [https://github.com/Heetpatel22/SmartStock/actions/runs/43583551922](https://github.com/Heetpatel22/SmartStock/actions/runs/43583551922)
    - Shows the live green tick (`✓`) on the GitHub repository.
+

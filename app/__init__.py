@@ -44,12 +44,14 @@ def create_app(test_config=None):
     from app.products.routes import products_bp
     from app.suppliers.routes import suppliers_bp
     from app.sales.routes import sales_bp
+    from app.api import api_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(products_bp, url_prefix="/products")
     app.register_blueprint(suppliers_bp, url_prefix="/suppliers")
     app.register_blueprint(sales_bp, url_prefix="/sales")
+    app.register_blueprint(api_bp)
 
     from app.cli import register_commands
     register_commands(app)
