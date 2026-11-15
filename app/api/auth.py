@@ -52,3 +52,4 @@ def api_me():
 def api_logout():
     logout_user()
     return jsonify({"message": "Logged out successfully"}), 200
+

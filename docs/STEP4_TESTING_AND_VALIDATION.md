@@ -90,6 +90,8 @@
 
 SmartStock adopts the **Agile Testing Quadrants** model to balance business-facing and technology-facing tests across automated and manual spectrums:
 
+![Agile Testing Quadrants Diagram](agile_testing_quadrants.png)
+
 ```text
                Business Facing
                      ▲
@@ -123,3 +125,4 @@ the Team             │                          Product
    - **Scope**: Validates user experience, cashier checkout flow, receipt printing, and visual layout.
 4. **Quadrant 4 (Technology-Facing, Critiquing the Product)**:
    - **Tools**: Role-based access control tests, database transaction rollback checks, concurrency safety on stock deductions.
+

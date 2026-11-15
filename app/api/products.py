@@ -222,3 +222,4 @@ def api_delete_product(product_id):
         "message": "Product deleted successfully",
         "id": product_id,
     }), 200
+
