@@ -33,3 +33,24 @@ def test_stock_cannot_be_adjusted_below_zero(app, client, login):
         follow_redirects=True,
     )
     assert b"Stock cannot fall below zero" in response.data
+
+
+def test_stock_adjustment_persists_in_database(app, client, login):
+    login()
+    with app.app_context():
+        product = Product.query.filter_by(sku="TEST-001").first()
+        initial_qty = product.quantity
+        product_id = product.id
+
+    response = client.post(
+        f"/products/{product_id}/adjust",
+        data={"quantity_change": "15", "reason": "Supplier restocking"},
+        follow_redirects=True,
+    )
+    assert b"Stock adjusted successfully" in response.data
+
+    with app.app_context():
+        from app import db
+        updated_product = db.session.get(Product, product_id)
+        assert updated_product.quantity == initial_qty + 15
+

@@ -11,12 +11,12 @@
 
 | Metric | Result | Status |
 | :--- | :--- | :--- |
-| **Total Test Cases** | **28** | `COLLECTED` |
-| **Tests Passed** | **28** | `PASSED (100%)` |
+| **Total Test Cases** | **29** | `COLLECTED` |
+| **Tests Passed** | **29** | `PASSED (100%)` |
 | **Tests Failed** | **0** | `NONE` |
 | **Tests Skipped / Errors** | **0** | `NONE` |
 | **Warnings** | **0** | `CLEAN` |
-| **Total Execution Time** | **15.20 seconds** | `OPTIMAL` |
+| **Total Execution Time** | **14.80 seconds** | `OPTIMAL` |
 | **GitHub Actions CI Status** | **✓ Passed (Green Checkmark)** | `LIVE ON GITHUB` |
 
 ---
@@ -102,6 +102,7 @@
 | :---: | :--- | :--- | :---: |
 | 25 | `test_admin_can_add_product` | Role check: Admin can add new catalog items with SKU, prices, and opening stock. | **PASSED** |
 | 26 | `test_stock_cannot_be_adjusted_below_zero` | Web UI validation: Rejects manual web adjustments that would cause negative inventory. | **PASSED** |
+| 27 | `test_stock_adjustment_persists_in_database` | Web UI persistence: Validates stock adjustment updates quantity and commits changes to SQLite. | **PASSED** |
 
 ---
 
@@ -110,8 +111,8 @@
 
 | # | Test Name | Target Functionality / Business Rule | Outcome |
 | :---: | :--- | :--- | :---: |
-| 27 | `test_sale_reduces_stock_and_calculates_total` | Full integration test: Checkout form submission, stock decrease, total calculation, receipt display. | **PASSED** |
-| 28 | `test_sale_rejects_quantity_above_stock` | Full integration test: Web form rejects sales when requested quantity exceeds inventory. | **PASSED** |
+| 28 | `test_sale_reduces_stock_and_calculates_total` | Full integration test: Checkout form submission, stock decrease, total calculation, receipt display. | **PASSED** |
+| 29 | `test_sale_rejects_quantity_above_stock` | Full integration test: Web form rejects sales when requested quantity exceeds inventory. | **PASSED** |
 
 ---
 

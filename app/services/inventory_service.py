@@ -49,6 +49,12 @@ class InventoryService:
             quantity=abs(quantity_change),
             reason=clean_reason,
         )
+
+        if hasattr(self.product_writer, "commit"):
+            self.product_writer.commit()
+        elif hasattr(self.movement_recorder, "commit"):
+            self.movement_recorder.commit()
+
         return movement
 
     @staticmethod

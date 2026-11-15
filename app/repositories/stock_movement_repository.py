@@ -36,3 +36,7 @@ class StockMovementRepository(IStockMovementRecorder):
             .limit(limit)
             .all()
         )
+
+    def commit(self) -> None:
+        self._session.commit()
+
