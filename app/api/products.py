@@ -95,15 +95,18 @@ def api_add_product():
 # US-03 (SCRUM-24): Update Product Details
 # -------------------------------------------------------------
 @api_bp.route("/products/<int:product_id>", methods=["PUT", "PATCH"])
-@login_required
 def api_update_product(product_id):
+    if not current_user.is_authenticated:
+        return jsonify({"error": "Authentication required"}), 401
     if not current_user.is_admin:
         return jsonify({"error": "Admin privileges required"}), 403
 
     if not product_service.get_by_id(product_id):
         return jsonify({"error": "Product not found"}), 404
 
-    data = request.get_json(silent=True) or request.form.to_dict()
+    data = request.get_json(silent=True) if request.is_json else request.form.to_dict()
+    if not isinstance(data, dict):
+        return jsonify({"error": "Product updates must be a JSON object"}), 400
     try:
         updated = product_service.update_product(product_id, data)
         return jsonify({
