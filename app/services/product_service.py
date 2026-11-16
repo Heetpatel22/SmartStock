@@ -111,79 +111,90 @@ class ProductService:
 
         return product
 
+    @staticmethod
+    def _update_integer(value: Any, label: str) -> int:
+        # JSON booleans and fractional numbers must not be silently coerced.
+        try:
+            number = Decimal(str(value))
+        except (InvalidOperation, ValueError):
+            raise ValidationError(f"{label} must be a whole number.") from None
+        if (not number.is_finite() or number != number.to_integral_value()
+                or number < 0 or number > 2**63 - 1):
+            raise ValidationError(f"{label} must be a non-negative whole number.")
+        return int(number)
+
     def update_product(self, product_id: int, updates: Dict[str, Any]) -> Product:
         product = self.get_by_id(product_id)
         if not product:
             raise ValidationError("Product not found.")
+        if not isinstance(updates, dict):
+            raise ValidationError("Product updates must be an object.")
 
-        original_quantity = product.quantity
-
-        if "sku" in updates:
-            new_sku = updates["sku"].strip().upper()
-            if not new_sku:
-                raise ValidationError("SKU cannot be empty.")
-            existing = self.product_reader.get_by_sku(new_sku)
+        # Validate the entire request before touching the tracked ORM object.
+        # A later validation query can otherwise autoflush an earlier edit.
+        changes = {}
+        for field, label in (("sku", "SKU"), ("name", "Product name")):
+            if field in updates:
+                value = updates[field]
+                if not isinstance(value, str) or not value.strip():
+                    raise ValidationError(f"{label} must be a non-empty string.")
+                changes[field] = value.strip().upper() if field == "sku" else value.strip()
+        if "sku" in changes:
+            existing = self.product_reader.get_by_sku(changes["sku"])
             if existing and existing.id != product.id:
-                raise ValidationError(f"SKU '{new_sku}' is already in use.")
-            product.sku = new_sku
-
-        if "name" in updates:
-            new_name = updates["name"].strip()
-            if not new_name:
-                raise ValidationError("Product name cannot be empty.")
-            product.name = new_name
+                raise ValidationError(f"SKU '{changes['sku']}' is already in use.")
 
         if "description" in updates:
-            product.description = (updates["description"] or "").strip()
+            value = updates["description"]
+            if value is not None and not isinstance(value, str):
+                raise ValidationError("Description must be a string.")
+            changes["description"] = (value or "").strip()
 
+        for field, label in (("cost_price", "Cost price"), ("selling_price", "Selling price")):
+            if field in updates:
+                try:
+                    value = Decimal(str(updates[field]))
+                except (InvalidOperation, ValueError):
+                    raise ValidationError(f"{label} must be a finite amount.") from None
+                if not value.is_finite() or value < 0 or (field == "selling_price" and value == 0):
+                    raise ValidationError(f"{label} must be a valid positive amount.")
+                changes[field] = value
+
+        for field, label in (("quantity", "Quantity"), ("reorder_level", "Reorder level")):
+            if field in updates:
+                changes[field] = self._update_integer(updates[field], label)
+
+        for field, label, repo in (("category_id", "Category", self.category_repo),
+                                   ("supplier_id", "Supplier", self.supplier_repo)):
+            if field in updates:
+                value = updates[field]
+                if value is None or value == "":
+                    changes[field] = None
+                else:
+                    related_id = self._update_integer(value, label + " ID")
+                    if not repo.get_by_id(related_id):
+                        raise ValidationError(f"{label} not found.")
+                    changes[field] = related_id
+
+        original_quantity = product.quantity
         try:
-            if "cost_price" in updates:
-                cp = Decimal(str(updates["cost_price"]))
-                if cp < 0:
-                    raise ValidationError("Cost price cannot be negative.")
-                product.cost_price = cp
-
-            if "selling_price" in updates:
-                sp = Decimal(str(updates["selling_price"]))
-                if sp <= 0:
-                    raise ValidationError("Selling price must be greater than zero.")
-                product.selling_price = sp
-
-            if "reorder_level" in updates:
-                rl = int(updates["reorder_level"])
-                if rl < 0:
-                    raise ValidationError("Reorder level cannot be negative.")
-                product.reorder_level = rl
-
-            if "category_id" in updates:
-                cid = updates["category_id"]
-                product.category_id = int(cid) if cid else None
-
-            if "supplier_id" in updates:
-                sid = updates["supplier_id"]
-                product.supplier_id = int(sid) if sid else None
-
-            if "quantity" in updates:
-                new_qty = int(updates["quantity"])
-                if new_qty < 0:
-                    raise ValidationError("Quantity cannot be negative.")
-                diff = new_qty - original_quantity
-                if diff != 0:
-                    product.quantity = new_qty
-                    self.movement_recorder.record_movement(
-                        product_id=product.id,
-                        movement_type="IN" if diff > 0 else "OUT",
-                        quantity=abs(diff),
-                        reason="Product edit",
-                    )
-        except (ValueError, InvalidOperation):
-            raise ValidationError("Invalid numeric values supplied.")
-
-        self.product_writer.save(product)
-
-        if hasattr(self.product_repo, "commit"):
-            self.product_repo.commit()
-
+            for field, value in changes.items():
+                setattr(product, field, value)
+            diff = product.quantity - original_quantity
+            if diff:
+                self.movement_recorder.record_movement(
+                    product_id=product.id,
+                    movement_type="IN" if diff > 0 else "OUT",
+                    quantity=abs(diff),
+                    reason="Product edit",
+                )
+            self.product_writer.save(product)
+            if hasattr(self.product_repo, "commit"):
+                self.product_repo.commit()
+        except Exception:
+            if hasattr(self.product_repo, "rollback"):
+                self.product_repo.rollback()
+            raise
         return product
 
     def delete_product(self, product_id: int) -> None:
