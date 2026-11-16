@@ -122,8 +122,9 @@ def api_update_product(product_id):
 # US-04 (SCRUM-25): Delete Product
 # -------------------------------------------------------------
 @api_bp.route("/products/<int:product_id>", methods=["DELETE"])
-@login_required
 def api_delete_product(product_id):
+    if not current_user.is_authenticated:
+        return jsonify({"error": "Authentication required"}), 401
     if not current_user.is_admin:
         return jsonify({"error": "Admin privileges required"}), 403
 
